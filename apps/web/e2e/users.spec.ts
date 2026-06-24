@@ -19,7 +19,7 @@ test.describe("Users page", () => {
 
       let userRow = page.locator("tr").filter({ hasText: email });
       await expect(userRow).toBeVisible();
-      await expect(userRow).toContainText("Ada Lovelace");
+      await expect(userRow).toContainText("Ada Lovelace BROKEN-ON-PURPOSE");
       await expect(userRow).toContainText("admin");
 
       await userRow.getByRole("button", { name: "Editar" }).click();
