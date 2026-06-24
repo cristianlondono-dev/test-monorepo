@@ -115,7 +115,7 @@ jobs:
         run: pnpm --filter web exec playwright install --with-deps chromium
 
       - name: Run e2e suite
-        run: pnpm --filter web test:e2e -- --reporter=list,html
+        run: pnpm --filter web test:e2e
 
       - name: Upload Playwright report
         if: failure()
