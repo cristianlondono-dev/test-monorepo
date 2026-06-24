@@ -1,0 +1,24 @@
+{
+  "name": "example-turbo",
+  "private": true,
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "packageManager": "pnpm@11.8.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
+    "type-check": "turbo run type-check",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,md,json}\"",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.4",
+    "turbo": "^2.9.18",
+    "typescript": "^5.9.3"
+  }
+}
