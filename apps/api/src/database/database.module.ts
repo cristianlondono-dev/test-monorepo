@@ -1,3 +1,4 @@
+import { join } from "node:path";
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -11,7 +12,9 @@ import { TypeOrmModule } from "@nestjs/typeorm";
         type: "postgres" as const,
         url: config.get<string>("DATABASE_URL"),
         autoLoadEntities: true,
-        synchronize: config.get<string>("NODE_ENV") !== "production",
+        synchronize: false,
+        migrations: [join(__dirname, "migrations", "*{.ts,.js}")],
+        migrationsRun: true,
       }),
     }),
   ],
