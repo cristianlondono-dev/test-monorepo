@@ -22,9 +22,9 @@
 
 ## 4. Validate the workflow actually gates correctly
 
-- [ ] 4.1 Push a branch with green e2e specs and open a pull request targeting `develop`; confirm the workflow triggers and the check passes
-- [ ] 4.2 Temporarily break one assertion in `apps/web/e2e/users.spec.ts` (or `tasks.spec.ts`) on a throwaway branch/PR targeting `develop`; confirm the job fails clearly and for the right reason (not a setup/readiness failure), then revert the change
-- [ ] 4.3 Open a pull request targeting `main` (e.g. from `develop`) and confirm the same workflow triggers there too
+- [x] 4.1 Push a branch with green e2e specs and open a pull request targeting `develop`; confirm the workflow triggers and the check passes
+- [x] 4.2 Temporarily break one assertion in `apps/web/e2e/users.spec.ts` (or `tasks.spec.ts`) on a throwaway branch/PR targeting `develop`; confirm the job fails clearly and for the right reason (not a setup/readiness failure), then revert the change
+- [x] 4.3 Open a pull request targeting `main` (e.g. from `develop`) and confirm the same workflow triggers there too
 
 ## 5. Enforce the gate via branch protection (requires explicit confirmation before applying to the live repo)
 
