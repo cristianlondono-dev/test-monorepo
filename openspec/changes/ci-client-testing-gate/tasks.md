@@ -29,6 +29,6 @@
 ## 5. Enforce the gate via branch protection (requires explicit confirmation before applying to the live repo)
 
 - [x] 5.1 Document the exact steps to require this workflow's check before merging: GitHub repo → Settings → Branches → add/edit a branch protection rule for the branch → enable "Require status checks to pass before merging" → select this workflow's job → save (note the equivalent `gh api repos/:owner/:repo/branches/:branch/protection` call as a reference, but do not assume `gh` is available or already authenticated)
-- [ ] 5.2 With explicit go-ahead, apply the branch protection rule to `develop`
-- [ ] 5.3 With explicit go-ahead, apply the branch protection rule to `main`
-- [ ] 5.4 Confirm enforcement: attempt to merge a pull request with a failing check and verify GitHub's merge button is disabled/blocked
+- [x] 5.2 With explicit go-ahead, apply the branch protection rule to `develop`
+- [x] 5.3 With explicit go-ahead, apply the branch protection rule to `main`
+- [x] 5.4 Confirm enforcement: attempt to merge a pull request with a failing check and verify GitHub's merge button is disabled/blocked
