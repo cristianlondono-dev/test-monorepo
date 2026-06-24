@@ -1,5 +1,7 @@
 {
-  "extends": "../typescript-config/base.json",
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*"
+  },
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src"
