@@ -74,11 +74,11 @@ jobs:
           docker compose logs db
           exit 1
 
-      - name: Run database migrations
-        run: pnpm --filter api migration:run
-
       - name: Build api and web
         run: pnpm turbo run build --filter=api... --filter=web...
+
+      - name: Run database migrations
+        run: pnpm --filter api migration:run
 
       - name: Start api and web
         run: |

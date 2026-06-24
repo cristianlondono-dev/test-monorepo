@@ -8,8 +8,8 @@
 
 - [x] 2.1 Add a step that writes a CI-specific `.env` (based on `.env.example` but with `DATABASE_URL` pointed at `localhost`, not the Compose service name `db`, per design.md Decision 3) — no secrets needed, same placeholder values already in `.env.example`
 - [x] 2.2 Run `docker compose up -d db` and wait for the `db` service's existing healthcheck to report healthy before continuing (poll, don't `sleep` a fixed duration)
-- [x] 2.3 Run `pnpm --filter api migration:run` against that database
-- [x] 2.4 Export `NEXT_PUBLIC_API_URL=http://localhost:4000` and run `pnpm turbo run build --filter=api... --filter=web...`
+- [x] 2.3 Export `NEXT_PUBLIC_API_URL=http://localhost:4000` and run `pnpm turbo run build --filter=api... --filter=web...` (must run before migrations — `apps/api`'s entities import types from `@repo/types`, which TypeORM/ts-node type-checks when loading entities for `migration:run`, so the workspace package needs to be built first)
+- [x] 2.4 Run `pnpm --filter api migration:run` against that database
 - [x] 2.5 Start `apps/api` and `apps/web` in the background (e.g. `pnpm --filter api start &`, `pnpm --filter web start &`), redirecting each process's output to a log file the job can show or upload on failure
 - [x] 2.6 Add a readiness step that polls `http://localhost:4000` and `http://localhost:3000` until both respond (or a timeout is hit), failing the job with a clear "stack did not become ready" message if the timeout is reached
 
