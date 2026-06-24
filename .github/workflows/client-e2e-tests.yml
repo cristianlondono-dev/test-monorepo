@@ -1,0 +1,144 @@
+name: Client E2E Tests
+
+on:
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://example:example@localhost:5432/example
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+      NODE_ENV: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+
+      - name: Enable Corepack and activate pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.8.0 --activate
+
+      - name: Resolve pnpm store path
+        run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_ENV"
+
+      - name: Cache pnpm store and Turborepo outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.PNPM_STORE_PATH }}
+            .turbo
+          key: ${{ runner.os }}-pnpm-turbo-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-turbo-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Write CI .env
+        run: |
+          cat > .env <<'EOF'
+          POSTGRES_USER=example
+          POSTGRES_PASSWORD=example
+          POSTGRES_DB=example
+          POSTGRES_HOST=db
+          POSTGRES_PORT=5432
+          DATABASE_URL=postgresql://example:example@localhost:5432/example
+          API_PORT=4000
+          WEB_PORT=3000
+          NEXT_PUBLIC_API_URL=http://localhost:4000
+          EOF
+
+      - name: Start Postgres
+        run: docker compose up -d db
+
+      - name: Wait for Postgres to be healthy
+        run: |
+          for i in $(seq 1 30); do
+            cid="$(docker compose ps -q db)"
+            status="$(docker inspect --format='{{.State.Health.Status}}' "$cid" 2>/dev/null || echo "unknown")"
+            if [ "$status" = "healthy" ]; then
+              echo "Postgres is healthy"
+              exit 0
+            fi
+            echo "Waiting for Postgres to be healthy... ($i/30, status=$status)"
+            sleep 2
+          done
+          echo "::error::Postgres did not become healthy in time"
+          docker compose logs db
+          exit 1
+
+      - name: Run database migrations
+        run: pnpm --filter api migration:run
+
+      - name: Build api and web
+        run: pnpm turbo run build --filter=api... --filter=web...
+
+      - name: Start api and web
+        run: |
+          pnpm --filter api start > api.log 2>&1 &
+          echo $! > api.pid
+          pnpm --filter web start > web.log 2>&1 &
+          echo $! > web.pid
+
+      - name: Wait for stack to be ready
+        run: |
+          api_ready=false
+          web_ready=false
+          for i in $(seq 1 60); do
+            if [ "$api_ready" != true ] && curl -fsS http://localhost:4000 >/dev/null 2>&1; then
+              api_ready=true
+              echo "api is ready"
+            fi
+            if [ "$web_ready" != true ] && curl -fsS http://localhost:3000 >/dev/null 2>&1; then
+              web_ready=true
+              echo "web is ready"
+            fi
+            if [ "$api_ready" = true ] && [ "$web_ready" = true ]; then
+              echo "Stack is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Stack did not become ready within timeout (api_ready=$api_ready, web_ready=$web_ready)"
+          echo "--- api.log ---"; cat api.log || true
+          echo "--- web.log ---"; cat web.log || true
+          exit 1
+
+      - name: Install Playwright browsers
+        run: pnpm --filter web exec playwright install --with-deps chromium
+
+      - name: Run e2e suite
+        run: pnpm --filter web test:e2e -- --reporter=list,html
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report/
+          retention-days: 7
+
+      - name: Upload app logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-logs
+          path: |
+            api.log
+            web.log
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Stop background processes and tear down stack
+        if: always()
+        run: |
+          [ -f api.pid ] && kill "$(cat api.pid)" 2>/dev/null || true
+          [ -f web.pid ] && kill "$(cat web.pid)" 2>/dev/null || true
+          docker compose down -v
