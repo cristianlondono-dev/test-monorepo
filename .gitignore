@@ -27,6 +27,10 @@ pnpm-debug.log*
 
 # testing / coverage
 coverage/
+/apps/web/test-results/
+/apps/web/playwright-report/
+/apps/web/blob-report/
+/.playwright-mcp/
 
 # database
 *.sqlite
