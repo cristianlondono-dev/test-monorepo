@@ -6,3 +6,9 @@ allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
+  "@scarf/scarf": false
+
+minimumReleaseAgeExclude:
+  - '@playwright/test@1.61.1'
+  - playwright-core@1.61.1
+  - playwright@1.61.1
