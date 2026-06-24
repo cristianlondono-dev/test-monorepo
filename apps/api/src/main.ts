@@ -16,6 +16,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("docs", app, document);
 
-  await app.listen(process.env.PORT ?? 4000);
+  // Railway's private network (used by apps/web to reach this service) is IPv6-only;
+  // binding to "::" listens dual-stack so both the public proxy (IPv4) and
+  // private networking (IPv6) can reach it.
+  await app.listen(process.env.PORT ?? 4000, "::");
 }
 bootstrap();
