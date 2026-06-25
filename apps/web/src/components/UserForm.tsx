@@ -11,6 +11,7 @@ const ROLE_LABELS: Record<UserRole, string> = {
 
 const inputClass =
   "w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50";
+const selectClass = `${inputClass} select-arrow appearance-none bg-no-repeat bg-[length:16px] bg-[right_0.75rem_center] pr-9`;
 const labelClass = "text-sm font-medium text-zinc-700 dark:text-zinc-300";
 
 interface UserFormProps {
@@ -100,7 +101,7 @@ export function UserForm({ user, onSubmit }: UserFormProps) {
       <label className="flex flex-col gap-1">
         <span className={labelClass}>Rol</span>
         <select
-          className={inputClass}
+          className={selectClass}
           value={role}
           onChange={(e) => setRole(e.target.value as UserRole)}
         >
